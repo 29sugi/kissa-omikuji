@@ -235,7 +235,6 @@ button:disabled{opacity:.5; cursor:not-allowed}
 
     <div class="list">
       <div class="line" id="today"></div>
-      <div class="line small" id="blood"></div>
       <div class="line" id="love"></div>
       <div class="line" id="work"></div>
       <div class="line" id="health"></div>
@@ -486,8 +485,8 @@ leverBtn.onclick = async () => {
 
     const idx = (luckyNumber - 1) % 4;
 
-document.getElementById("blood").textContent =
-  `血液型：A ${A[idx]} ／ B ${B[idx]} ／ O ${O[idx]} ／ AB ${AB[idx]}`;
+　　document.getElementById("blood").textContent =
+  　`血液型：A ${A[idx]} ／ B ${B[idx]} ／ O ${O[idx]} ／ AB ${AB[idx]}`;
 
     document.getElementById("love").textContent = `恋愛：${pick(love)}`;
     document.getElementById("work").textContent = `仕事：${pick(work)}`;
