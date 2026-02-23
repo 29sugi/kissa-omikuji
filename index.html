@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>喫茶店ルーレットおみくじ</title>
+  <style>
+    body{font-family: "Noto Serif JP", serif; background:#f6f1e7; color:#2a2a2a; margin:0;}
+    .wrap{max-width:720px; margin:0 auto; padding:24px; text-align:center;}
+    h1{font-size:22px; margin:10px 0 18px;}
+    .machine{background:#fff7ea; border:2px solid #6b4f3a; border-radius:16px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,.12);}
+    .dial{
+      width:260px; height:260px; margin:16px auto; border-radius:50%;
+      border:10px solid #6b4f3a; background:conic-gradient(#e8d7c3 0 45deg,#f2e7d8 45 90,#e8d7c3 90 135,#f2e7d8 135 180,#e8d7c3 180 225,#f2e7d8 225 270,#e8d7c3 270 315,#f2e7d8 315 360);
+      position:relative; transform:rotate(0deg);
+      transition: transform 3.2s cubic-bezier(.1,.9,.1,1);
+    }
+    .needle{
+      width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:26px solid #b52121;
+      margin:0 auto; transform:translateY(10px);
+    }
+    .buttons{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;}
+    button{border:2px solid #6b4f3a; background:#fff; padding:10px 14px; border-radius:12px; font-size:15px; cursor:pointer;}
+    button:disabled{opacity:.5; cursor:not-allowed;}
+    .slot{margin:18px auto 0; width:min(520px, 92%); background:#fff; border:2px dashed #6b4f3a; border-radius:14px; padding:14px;}
+    .paper{
+      display:none; margin-top:12px; background:#fff; border:1px solid #ddd; border-radius:10px; padding:14px; text-align:left;
+      box-shadow:0 6px 18px rgba(0,0,0,.10);
+    }
+    .paper h2{margin:0 0 8px; font-size:18px;}
+    .meta{font-size:13px; opacity:.8; margin:0 0 10px;}
+    .line{margin:6px 0; font-size:15px;}
+    .hint{font-size:13px; opacity:.75; margin-top:10px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>喫茶店ルーレットおみくじ</h1>
+
+    <div class="machine">
+      <div class="needle"></div>
+      <div id="dial" class="dial" aria-label="ルーレット"></div>
+
+      <div class="buttons">
+        <button id="coin">100円入れる</button>
+        <button id="lever" disabled>レバーを引く</button>
+        <button id="reset" disabled>もう一回</button>
+      </div>
+
+      <div class="slot">
+        <div>おみくじ出口</div>
+        <div id="paper" class="paper">
+          <h2 id="luck">—</h2>
+          <div class="meta" id="meta">—</div>
+          <div class="line" id="love">恋愛：—</div>
+          <div class="line" id="work">仕事：—</div>
+          <div class="line" id="health">健康：—</div>
+          <div class="line" id="one">一言：—</div>
+        </div>
+        <div class="hint">※実際のお金は発生しません。雰囲気だけです。</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const dial = document.getElementById("dial");
+  const coinBtn = document.getElementById("coin");
+  const leverBtn = document.getElementById("lever");
+  const resetBtn = document.getElementById("reset");
+  const paper = document.getElementById("paper");
+
+  const results = [
+    {luck:"大吉", love:"話しかけると吉", work:"先に片づけるべし", health:"湯船が正義", one:"プリンが運を連れてくる"},
+    {luck:"中吉", love:"返信は急がず", work:"手順を守れ", health:"首を温めよ", one:"喫茶店の椅子は味方"},
+    {luck:"小吉", love:"笑うと流れが変わる", work:"メモがあなたを救う", health:"水を一杯足せ", one:"今日は“焦らない”が最大の技"},
+    {luck:"吉",   love:"比べない", work:"一点集中", health:"目を休めよ", one:"コーヒーは濃すぎ注意"},
+    {luck:"末吉", love:"期待しすぎない", work:"見直し一回", health:"冷えに注意", one:"寄り道に福あり"},
+    {luck:"凶",   love:"言い過ぎ注意", work:"衝動で動くな", health:"寝不足は敵", one:"甘いものは控えめに"},
+    {luck:"大凶", love:"今日は守り", work:"決めないが正解", health:"無理しない", one:"“やらないこと”を決めよ"}
+  ];
+
+  let paid = false;
+  let spinning = false;
+
+  function nowStr(){
+    const d = new Date();
+    const pad = n => String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  coinBtn.onclick = () => {
+    if (spinning) return;
+    paid = true;
+    leverBtn.disabled = false;
+    coinBtn.disabled = true;
+    paper.style.display = "none";
+  };
+
+  leverBtn.onclick = () => {
+    if (!paid || spinning) return;
+    spinning = true;
+    leverBtn.disabled = true;
+
+    const idx = Math.floor(Math.random() * results.length);
+    // ぐるぐる回して止める（角度は適当。雰囲気重視）
+    const turns = 7 + Math.floor(Math.random() * 4); // 7〜10回転
+    const angle = turns * 360 + idx * (360 / results.length) + Math.floor(Math.random()*10);
+    dial.style.transform = `rotate(${angle}deg)`;
+
+    setTimeout(() => {
+      const r = results[idx];
+      document.getElementById("luck").textContent = r.luck;
+      document.getElementById("meta").textContent = `発行：喫茶テーブル神社 / ${nowStr()}`;
+      document.getElementById("love").textContent = `恋愛：${r.love}`;
+      document.getElementById("work").textContent = `仕事：${r.work}`;
+      document.getElementById("health").textContent = `健康：${r.health}`;
+      document.getElementById("one").textContent = `一言：${r.one}`;
+      paper.style.display = "block";
+      resetBtn.disabled = false;
+      spinning = false;
+    }, 3300);
+  };
+
+  resetBtn.onclick = () => {
+    if (spinning) return;
+    paid = false;
+    coinBtn.disabled = false;
+    leverBtn.disabled = true;
+    resetBtn.disabled = true;
+    paper.style.display = "none";
+    dial.style.transform = "rotate(0deg)";
+  };
+</script>
+</body>
+  </html>
