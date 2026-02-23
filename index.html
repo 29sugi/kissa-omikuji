@@ -235,14 +235,13 @@ button:disabled{opacity:.5; cursor:not-allowed}
 
     <div class="list">
       <div class="line" id="today"></div>
-
+      <div class="line small" id="blood"></div>
       <div class="line" id="love"></div>
       <div class="line" id="work"></div>
       <div class="line" id="health"></div>
       <div class="line" id="money"></div>
       <div class="line" id="people"></div>
-      <div class="line" id="time"></div>
-
+      <div class="line small" id="blood"></div>
       <div class="gap"></div>
 
       <div class="line" id="item"></div>
@@ -480,13 +479,22 @@ leverBtn.onclick = async () => {
 
     // 星座は結果に出さない（今日の行だけ）
     document.getElementById("today").textContent = `本日の番号：${luckyNumber}`;
+    const A  = ["丁寧に整える","確認を一回足す","時間を区切る","忘れ物チェック"];
+    const B  = ["勢いを活かす","まず着手","余白を残す","一発で決める"];
+    const O  = ["人に当てる","大枠で動く","体を温める","まず連絡"];
+    const AB = ["一人時間を確保","ルール化する","情報を絞る","静かに進める"];
+
+    const idx = (luckyNumber - 1) % 4;
+
+document.getElementById("blood").textContent =
+  `血液型：A ${A[idx]} ／ B ${B[idx]} ／ O ${O[idx]} ／ AB ${AB[idx]}`;
 
     document.getElementById("love").textContent = `恋愛：${pick(love)}`;
     document.getElementById("work").textContent = `仕事：${pick(work)}`;
     document.getElementById("health").textContent = `健康：${pick(health)}`;
     document.getElementById("money").textContent = `金運：${pick(money)}`;
     document.getElementById("people").textContent = `対人：${pick(people)}`;
-    document.getElementById("time").textContent = `勝負：${pick(timeLuck)}`;
+  
 
     // ラベル短縮
     document.getElementById("item").textContent = `持ち物：${pick(items)}`;
