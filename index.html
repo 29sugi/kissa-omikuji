@@ -91,7 +91,14 @@ h1{font-size:22px;margin:10px 0 14px;}
 }
 
 /* UI */
-.panel{margin-top:10px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; align-items:center;}
+.panel{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  align-items:center;
+}
 select,button{
   padding:10px 12px;
   border-radius:12px;
@@ -103,79 +110,71 @@ button{cursor:pointer}
 button:disabled{opacity:.5; cursor:not-allowed}
 .status{margin-top:10px;font-size:14px;opacity:.9}
 
-/* slot（出口ラベルは消す） */
-.slot{
-  width:min(520px, 96%);
-  margin:14px auto 0;
-  padding:12px;
-  background:#fff;
-  border-radius:14px;
-  border:2px solid #6b4f3a;
-  box-shadow: inset 0 10px 18px rgba(0,0,0,.06);
+/* 音ON/OFFボタン */
+.sound-btn{ }
+.sound-btn.off{ opacity:.65; }
+
+/* ===== モーダル（中央の紙） ===== */
+.modal.hidden{ display:none; }
+
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:9999;
 }
-.slot-top{
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  font-size:13px;
-  opacity:.75;
-  margin-bottom:10px;
-}
-.mouth{
-  position:relative;
-  height:44px;
-  border-radius:12px;
-  background:linear-gradient(#2a211a, #1e1712);
-  box-shadow: inset 0 8px 18px rgba(0,0,0,.55);
-  overflow:hidden;
-}
-.mouth::before{
-  content:"";
-  position:absolute; left:10px; right:10px; top:10px; height:10px;
-  border-radius:10px;
-  background:rgba(255,255,255,.08);
-}
-.mouth::after{
-  content:"";
-  position:absolute; left:0; right:0; bottom:0; height:10px;
+.modal-backdrop{
+  position:absolute;
+  inset:0;
   background:rgba(0,0,0,.25);
 }
 
-/* 紙が出てくる演出 */
-.paper{
-  position:relative;
-  width:min(520px, 85%);
-  margin:0 auto;
-  transform:translateY(-6px);
-  pointer-events:none;
-}
 .ticket{
-  width:100%;
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:min(520px, 85%); /* ★紙幅85% */
+  max-height:80vh;
+  overflow:auto;
+
   background:#fff;
   border:1px solid #ddd;
   border-radius:10px;
-  box-shadow:0 10px 24px rgba(0,0,0,.16);
-  padding:14px 14px 12px;
+  box-shadow:0 12px 28px rgba(0,0,0,.22);
+  padding:16px 16px 14px;
   text-align:left;
-  transform:translateY(-120%);
+
   opacity:0;
 }
-.ticket.show{
-  animation: outPaper 700ms cubic-bezier(.1,.9,.2,1) forwards;
-}
-@keyframes outPaper{
-  0%{ transform:translateY(-120%); opacity:0; }
-  55%{ transform:translateY(-8%); opacity:1; }
-  70%{ transform:translateY(-14%); }
-  100%{ transform:translateY(0%); opacity:1; }
-}
-.ticket h2{margin:0 0 8px;font-size:18px;}
-.meta{font-size:12px;opacity:.75;margin:0 0 10px;}
 
-/* ★縦1列の結果表示 */
-.list{
-  font-size:14px;
+/* 出現アニメ */
+.ticket.show{
+  animation: popPaper 320ms cubic-bezier(.2,.9,.2,1) forwards;
 }
+
+@keyframes popPaper{
+  0%   { opacity:0; transform:translate(-50%,-48%) scale(.98); }
+  100% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+
+.ticket h2{margin:0 0 8px;font-size:20px;}
+.meta{font-size:12px;opacity:.75;margin:0 0 12px;}
+
+.close-btn{
+  position:absolute;
+  top:10px;
+  right:12px;
+  border:none;
+  background:rgba(255,255,255,.7);
+  border-radius:10px;
+  padding:6px 10px;
+  cursor:pointer;
+  font-size:18px;
+  line-height:1;
+}
+
+/* 結果は縦1列 */
+.list{font-size:14px;}
 .line{
   margin:6px 0;
   white-space:nowrap;
@@ -186,19 +185,7 @@ button:disabled{opacity:.5; cursor:not-allowed}
 .small{
   font-size:13px;
   opacity:.85;
-  white-space:normal; /* 一言・注意は折返しOK */
-}
-
-/* 音ON/OFFボタン */
-.sound-btn{
-  padding:10px 12px;
-  border-radius:12px;
-  border:2px solid #6b4f3a;
-  background:#fff;
-  font-size:15px;
-}
-.sound-btn.off{
-  opacity:.65;
+  white-space:normal;
 }
 </style>
 </head>
@@ -232,49 +219,46 @@ button:disabled{opacity:.5; cursor:not-allowed}
   </div>
 
   <div class="status" id="status">手順：星座 → レバー</div>
+  <div class="status" id="hint" style="opacity:.7;">回転が止まるまで待ってね</div>
+</div>
+</div>
 
-  <div class="slot">
-    <div class="slot-top">
-      <div id="hint">回転が止まるまで待ってね</div>
+<!-- ★穴なし：中央表示の紙（モーダル） -->
+<div id="omikujiModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="backdrop"></div>
+
+  <div id="ticket" class="ticket" aria-live="polite">
+    <button class="close-btn" id="closeBtn" type="button">×</button>
+
+    <h2 id="luck">—</h2>
+    <div class="meta" id="meta">—</div>
+
+    <div class="list">
+      <div class="line" id="today"></div>
+
+      <div class="line" id="love"></div>
+      <div class="line" id="work"></div>
+      <div class="line" id="health"></div>
+      <div class="line" id="money"></div>
+      <div class="line" id="people"></div>
+      <div class="line" id="time"></div>
+
+      <div class="gap"></div>
+
+      <div class="line" id="item"></div>
+      <div class="line" id="food"></div>
+      <div class="line" id="color"></div>
+
+      <div class="gap"></div>
+
+      <div class="line small" id="one"></div>
+      <div class="line small" id="caution"></div>
     </div>
 
-    <div class="mouth"></div>
-
-    <div class="paper">
-      <div id="ticket" class="ticket" aria-live="polite">
-        <h2 id="luck">—</h2>
-        <div class="meta" id="meta">—</div>
-
-        <!-- ★縦1列 -->
-        <div class="list">
-          <div class="line" id="today"></div>
-
-          <div class="line" id="love"></div>
-          <div class="line" id="work"></div>
-          <div class="line" id="health"></div>
-          <div class="line" id="money"></div>
-          <div class="line" id="people"></div>
-          <div class="line" id="time"></div>
-
-          <div class="gap"></div>
-
-          <div class="line" id="item"></div>
-          <div class="line" id="food"></div>
-          <div class="line" id="color"></div>
-
-          <div class="gap"></div>
-
-          <div class="line small" id="one"></div>
-          <div class="line small" id="caution"></div>
-        </div>
-
-        <div class="footer-note small" style="margin-top:10px; opacity:.7;">
-          ※喫茶店の雰囲気だけです（実際の運勢保証はありません）
-        </div>
-      </div>
+    <div class="small" style="margin-top:10px; opacity:.7;">
+      ※喫茶店の雰囲気だけです（実際の運勢保証はありません）
     </div>
   </div>
-</div>
 </div>
 
 <script>
@@ -285,12 +269,16 @@ const resetBtn = document.getElementById("reset");
 const zicon = document.getElementById("zicon");
 const zname = document.getElementById("zname");
 const statusEl = document.getElementById("status");
-const ticket = document.getElementById("ticket");
 const hint = document.getElementById("hint");
+
+const modal = document.getElementById("omikujiModal");
+const backdrop = document.getElementById("backdrop");
+const ticket = document.getElementById("ticket");
+const closeBtn = document.getElementById("closeBtn");
 const soundBtn = document.getElementById("soundBtn");
 
 const zodiacs = ["牡羊座","牡牛座","双子座","蟹座","獅子座","乙女座","天秤座","蠍座","射手座","山羊座","水瓶座","魚座"];
-const icons = ["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"];
+const icons  = ["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"];
 
 /* おみくじ文言 */
 const lucks = [
@@ -311,6 +299,7 @@ const people = ["褒め言葉は具体的に。","頼むより相談が吉。","
 const timeLuck = ["午前","昼","夕方","夜","深夜"];
 const items = ["紙ナプキン","古い鍵","メモ帳","角砂糖","マッチ箱","万年筆","小さなタオル","しおり"];
 const foods = ["プリン","ナポリタン","トースト","ミルクティー","クリームソーダ","カレー","ホットケーキ","ブラックコーヒー"];
+// ※「生成り」は黄緑ではなくアイボリー寄り。黄緑系にしたければ「若草」などが近い。
 const colors = ["金","深緑","群青","えんじ","生成り","銀","茶","黒"];
 
 const oneLiners = [
@@ -336,15 +325,10 @@ function weightedPick(list){
   return list[list.length-1].name;
 }
 
-/* ===== 音：確実に鳴る版 + ON/OFF ===== */
+/* ===== 音（確実に鳴る版 + ON/OFF） ===== */
 let audioCtx = null;
 let soundEnabled = true;
 
-function loadSoundPref(){
-  const v = localStorage.getItem("omikuji_sound");
-  if(v === "off") soundEnabled = false;
-  updateSoundBtn();
-}
 function updateSoundBtn(){
   if(soundEnabled){
     soundBtn.textContent = "🔊 音ON";
@@ -354,11 +338,15 @@ function updateSoundBtn(){
     soundBtn.classList.add("off");
   }
 }
+function loadSoundPref(){
+  const v = localStorage.getItem("omikuji_sound");
+  if(v === "off") soundEnabled = false;
+  updateSoundBtn();
+}
 soundBtn.onclick = async () => {
   soundEnabled = !soundEnabled;
   localStorage.setItem("omikuji_sound", soundEnabled ? "on" : "off");
   updateSoundBtn();
-  // ONにした直後は AudioContext を起こしておく（スマホ対策）
   if(soundEnabled){
     await ensureAudio();
   }
@@ -377,6 +365,7 @@ function clickTick(time, gainVal=0.030, freq=1400){
   if(!soundEnabled || !audioCtx) return;
   const o = audioCtx.createOscillator();
   const g = audioCtx.createGain();
+
   o.type = "square";
   o.frequency.setValueAtTime(freq, time);
 
@@ -384,8 +373,11 @@ function clickTick(time, gainVal=0.030, freq=1400){
   g.gain.exponentialRampToValueAtTime(gainVal, time + 0.002);
   g.gain.exponentialRampToValueAtTime(0.0001, time + 0.030);
 
-  o.connect(g); g.connect(audioCtx.destination);
-  o.start(time); o.stop(time + 0.04);
+  o.connect(g);
+  g.connect(audioCtx.destination);
+
+  o.start(time);
+  o.stop(time + 0.04);
 }
 
 async function playRatchet(durationMs=3000){
@@ -394,31 +386,45 @@ async function playRatchet(durationMs=3000){
 
   const start = audioCtx.currentTime + 0.02;
   const dur = durationMs/1000;
-
-  // 減速感（速い→遅い）
   const steps = 54;
+
   for(let i=0;i<steps;i++){
     const t = i/(steps-1);
     const when = start + t*dur;
-    const gain = 0.040*(1-t) + 0.016; // だんだん小さく
-    const freq = 1500 - t*450;        // だんだん低く
+    const gain = 0.040*(1-t) + 0.016;
+    const freq = 1500 - t*450;
     clickTick(when, gain, freq);
   }
-  // 最後の「コトン」
   clickTick(start + dur + 0.03, 0.060, 900);
 }
 /* ===== /音 ===== */
 
-let spinning=false;
-let ringAngle=0;
-
-function resetPaper(){
+/* ===== モーダル開閉 ===== */
+function openOmikuji(){
+  modal.classList.remove("hidden");
+  // アニメ再発火
   ticket.classList.remove("show");
   void ticket.offsetWidth;
-}
-function showPaper(){
-  resetPaper();
   ticket.classList.add("show");
+}
+function closeOmikuji(){
+  modal.classList.add("hidden");
+  ticket.classList.remove("show");
+  ticket.style.opacity = 0; // 念のため
+}
+backdrop.onclick = closeOmikuji;
+closeBtn.onclick = closeOmikuji;
+/* ===== /モーダル ===== */
+
+let spinning=false;
+let ringAngle=0;
+let spinTimer = null;
+
+function clearSpinTimer(){
+  if(spinTimer){
+    clearTimeout(spinTimer);
+    spinTimer = null;
+  }
 }
 
 zodiacSel.onchange=()=>{
@@ -437,7 +443,9 @@ zodiacSel.onchange=()=>{
 leverBtn.onclick = async () => {
   if(spinning || zodiacSel.value==="") return;
 
-  // ★ユーザー操作のタイミングで必ず起こす（スマホで重要）
+  // 前回の「遅れて出てくる」バグを潰す
+  clearSpinTimer();
+
   await ensureAudio();
 
   spinning=true;
@@ -448,8 +456,8 @@ leverBtn.onclick = async () => {
   statusEl.textContent="ルーレット回転中…";
   hint.textContent="カチカチ…止まるまで待ってね";
 
-  resetPaper();
-  ticket.style.opacity = 0;
+  // モーダルは一旦閉じる（残骸防止）
+  closeOmikuji();
 
   const chosenIdx=Number(zodiacSel.value);
 
@@ -458,19 +466,18 @@ leverBtn.onclick = async () => {
   const pocketCenter=pocket*(360/48)+(360/96);
 
   const turns=12+Math.floor(Math.random()*6);
-  ringAngle=ringAngle+turns*360-pocketCenter;
-  ring.style.transform=`rotate(${ringAngle}deg)`;
+  ringAngle = ringAngle + turns*360 - pocketCenter;
+  ring.style.transform = `rotate(${ringAngle}deg)`;
 
-  // ★音
   playRatchet(3000);
 
-  setTimeout(()=>{
+  spinTimer = setTimeout(()=>{
     const luck = weightedPick(lucks);
 
     document.getElementById("luck").textContent = luck;
     document.getElementById("meta").textContent = `発行：喫茶テーブル神社 / ${nowStr()}`;
 
-    // ★星座は結果に出さない（todayのみに）
+    // 星座は結果に出さない（今日の行だけ）
     document.getElementById("today").textContent = `時刻：${pick(timeLuck)}が動く`;
 
     document.getElementById("love").textContent = `恋愛：${pick(love)}`;
@@ -480,7 +487,7 @@ leverBtn.onclick = async () => {
     document.getElementById("people").textContent = `対人：${pick(people)}`;
     document.getElementById("time").textContent = `勝負：${pick(timeLuck)}`;
 
-    // ★ラベル短縮
+    // ラベル短縮
     document.getElementById("item").textContent = `持ち物：${pick(items)}`;
     document.getElementById("food").textContent = `食：${pick(foods)}`;
     document.getElementById("color").textContent = `色：${pick(colors)}`;
@@ -488,26 +495,33 @@ leverBtn.onclick = async () => {
     document.getElementById("one").textContent = `一言：${pick(oneLiners)}`;
     document.getElementById("caution").textContent = `注意：${pick(cautions)}`;
 
-    ticket.style.opacity = 1;
-    showPaper();
+    openOmikuji();
 
     resetBtn.disabled=false;
     spinning=false;
     statusEl.textContent="止まりました。";
     hint.textContent="もう一回もできます";
+    spinTimer = null;
   },3000);
 };
 
 resetBtn.onclick=()=>{
+  // ★これが「もう一回で紙が上に乗る」系の最大対策
+  clearSpinTimer();
+  spinning=false;
+
+  // 表示を完全に戻す
+  closeOmikuji();
+
   zodiacSel.disabled=false;
   zodiacSel.value="";
   leverBtn.disabled=true;
   resetBtn.disabled=true;
+
   zicon.textContent="✦";
   zname.textContent="星座を選んでください";
   statusEl.textContent="手順：星座 → レバー";
   hint.textContent="回転が止まるまで待ってね";
-  resetPaper();
 };
 
 // 初期化
