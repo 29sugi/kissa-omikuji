@@ -463,6 +463,7 @@ leverBtn.onclick = async () => {
 
   // 48ポケット（星座12×4）
   const pocket=chosenIdx*4+Math.floor(Math.random()*4);
+  const luckyNumber = pocket + 1
   const pocketCenter=pocket*(360/48)+(360/96);
 
   const turns=12+Math.floor(Math.random()*6);
@@ -475,10 +476,10 @@ leverBtn.onclick = async () => {
     const luck = weightedPick(lucks);
 
     document.getElementById("luck").textContent = luck;
-    document.getElementById("meta").textContent = `発行：喫茶テーブル神社 / ${nowStr()}`;
+    document.getElementById("meta").textContent = `発行：喫茶テーブルおみくじ / ${nowStr()}`;
 
     // 星座は結果に出さない（今日の行だけ）
-    document.getElementById("today").textContent = `時刻：${pick(timeLuck)}が動く`;
+    document.getElementById("today").textContent = `本日の番号：${pick(timeLuck)}`;
 
     document.getElementById("love").textContent = `恋愛：${pick(love)}`;
     document.getElementById("work").textContent = `仕事：${pick(work)}`;
