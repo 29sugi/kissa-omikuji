@@ -30,8 +30,6 @@ h1{font-size:22px;margin:10px 0 14px;}
   width:340px;height:340px;
   margin:10px auto 8px;
 }
-
-/* 外周48分割リング */
 .ring{
   position:absolute; inset:0;
   border-radius:50%;
@@ -51,10 +49,8 @@ h1{font-size:22px;margin:10px 0 14px;}
   inset:60px;
   border-radius:50%;
   background:#fff7ea;
-  box-shadow:inset 0 0 0 2px rgba(0,0,0,.1);
 }
 
-/* 中央 */
 .center{
   position:absolute; left:50%; top:50%;
   transform:translate(-50%,-50%);
@@ -62,7 +58,6 @@ h1{font-size:22px;margin:10px 0 14px;}
   border-radius:50%;
   background:#fff;
   border:2px solid rgba(107,79,58,.5);
-  box-shadow:0 10px 24px rgba(0,0,0,.15);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -76,7 +71,6 @@ h1{font-size:22px;margin:10px 0 14px;}
   opacity:.7;
 }
 
-/* 下側の金三角 */
 .pointer{
   position:absolute;
   left:50%;
@@ -86,12 +80,10 @@ h1{font-size:22px;margin:10px 0 14px;}
   border-left:18px solid transparent;
   border-right:18px solid transparent;
   border-top:32px solid #d4af37;
-  filter:drop-shadow(0 3px 4px rgba(0,0,0,.35));
   z-index:5;
 }
 
-/* UI */
-.panel{margin-top:10px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; align-items:center;}
+.panel{margin-top:10px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
 select,button{
   padding:10px 12px;
   border-radius:12px;
@@ -100,87 +92,38 @@ select,button{
   font-size:15px;
 }
 button{cursor:pointer}
-button:disabled{opacity:.5; cursor:not-allowed}
+button:disabled{opacity:.5}
 .status{margin-top:10px;font-size:14px;opacity:.9}
 
-/* おみくじ出口（マシーン感） */
-.slot{
+/* 紙 */
+.ticket{
   width:min(520px, 96%);
   margin:14px auto 0;
-  padding:12px;
-  background:#fff;
-  border-radius:14px;
-  border:2px solid #6b4f3a;
-  box-shadow: inset 0 10px 18px rgba(0,0,0,.06);
-}
-.slot-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:13px;
-  opacity:.75;
-  margin-bottom:10px;
-}
-.mouth{
-  position:relative;
-  height:44px;
-  border-radius:12px;
-  background:linear-gradient(#2a211a, #1e1712);
-  box-shadow: inset 0 8px 18px rgba(0,0,0,.55);
-  overflow:hidden;
-}
-.mouth::before{
-  content:"";
-  position:absolute; left:10px; right:10px; top:10px; height:10px;
-  border-radius:10px;
-  background:rgba(255,255,255,.08);
-}
-.mouth::after{
-  content:"";
-  position:absolute; left:0; right:0; bottom:0; height:10px;
-  background:rgba(0,0,0,.25);
-}
-
-/* 紙が出てくる演出 */
-.paper{
-  position:relative;
-  width:min(520px, 96%);
-  margin:0 auto;
-  transform:translateY(-6px);
-  pointer-events:none;
-}
-.ticket{
-  width:100%;
   background:#fff;
   border:1px solid #ddd;
   border-radius:10px;
   box-shadow:0 10px 24px rgba(0,0,0,.16);
-  padding:14px 14px 12px;
+  padding:16px;
   text-align:left;
-  transform:translateY(-120%);
-  opacity:0;
+  display:none;
 }
-.ticket.show{
-  animation: outPaper 700ms cubic-bezier(.1,.9,.2,1) forwards;
+.ticket.show{display:block;}
+
+.ticket h2{margin:0 0 10px;font-size:20px;}
+.meta{font-size:12px;opacity:.75;margin-bottom:14px;}
+
+.line{
+  margin:6px 0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
-@keyframes outPaper{
-  0%{ transform:translateY(-120%); opacity:0; }
-  55%{ transform:translateY(-8%); opacity:1; }
-  70%{ transform:translateY(-14%); }
-  100%{ transform:translateY(0%); opacity:1; }
+.gap{height:10px;}
+.small{
+  font-size:13px;
+  opacity:.85;
+  white-space:normal;
 }
-.ticket h2{margin:0 0 8px;font-size:18px;}
-.meta{font-size:12px;opacity:.75;margin:0 0 10px;}
-.grid{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:6px 12px;
-  font-size:14px;
-}
-.line{margin:4px 0;}
-.full{grid-column:1 / -1;}
-.small{font-size:13px;opacity:.85;}
-.footer-note{margin-top:10px;font-size:12px;opacity:.7}
 </style>
 </head>
 
@@ -202,9 +145,12 @@ button:disabled{opacity:.5; cursor:not-allowed}
   <div class="panel">
     <select id="zodiac">
       <option value="">選んでください</option>
-      <option value="0">牡羊座</option><option value="1">牡牛座</option><option value="2">双子座</option><option value="3">蟹座</option>
-      <option value="4">獅子座</option><option value="5">乙女座</option><option value="6">天秤座</option><option value="7">蠍座</option>
-      <option value="8">射手座</option><option value="9">山羊座</option><option value="10">水瓶座</option><option value="11">魚座</option>
+      <option value="0">牡羊座</option><option value="1">牡牛座</option>
+      <option value="2">双子座</option><option value="3">蟹座</option>
+      <option value="4">獅子座</option><option value="5">乙女座</option>
+      <option value="6">天秤座</option><option value="7">蠍座</option>
+      <option value="8">射手座</option><option value="9">山羊座</option>
+      <option value="10">水瓶座</option><option value="11">魚座</option>
     </select>
 
     <button id="lever" disabled>レバーを引く</button>
@@ -213,236 +159,111 @@ button:disabled{opacity:.5; cursor:not-allowed}
 
   <div class="status" id="status">手順：星座 → レバー</div>
 
-  <div class="slot">
-    <div class="slot-top">
-      <div>おみくじ出口</div>
-      <div id="hint">回転が止まるまで待ってね</div>
-    </div>
+  <div id="ticket" class="ticket">
+    <h2 id="luck">—</h2>
+    <div class="meta" id="meta"></div>
 
-    <div class="mouth"></div>
+    <div class="line" id="today"></div>
 
-    <div class="paper">
-      <div id="ticket" class="ticket" aria-live="polite">
-        <h2 id="luck">—</h2>
-        <div class="meta" id="meta">—</div>
+    <div class="line" id="love"></div>
+    <div class="line" id="work"></div>
+    <div class="line" id="health"></div>
+    <div class="line" id="money"></div>
+    <div class="line" id="people"></div>
+    <div class="line" id="time"></div>
 
-        <div class="grid">
-          <div class="line" id="zline"></div>
-          <div class="line" id="today"></div>
+    <div class="gap"></div>
 
-          <div class="line" id="love"></div>
-          <div class="line" id="work"></div>
+    <div class="line" id="item"></div>
+    <div class="line" id="food"></div>
+    <div class="line" id="color"></div>
 
-          <div class="line" id="health"></div>
-          <div class="line" id="money"></div>
+    <div class="gap"></div>
 
-          <div class="line" id="people"></div>
-          <div class="line" id="time"></div>
-
-          <div class="line full" id="item"></div>
-          <div class="line full" id="food"></div>
-          <div class="line full" id="color"></div>
-
-          <div class="line full small" id="one"></div>
-          <div class="line full small" id="caution"></div>
-        </div>
-
-        <div class="footer-note">※喫茶店の雰囲気だけです（実際の運勢保証はありません）</div>
-      </div>
-    </div>
+    <div class="line small" id="one"></div>
+    <div class="line small" id="caution"></div>
   </div>
 </div>
 </div>
 
 <script>
-const ring = document.getElementById("ring");
-const zodiacSel = document.getElementById("zodiac");
-const leverBtn = document.getElementById("lever");
-const resetBtn = document.getElementById("reset");
-const zicon = document.getElementById("zicon");
-const zname = document.getElementById("zname");
-const statusEl = document.getElementById("status");
-const ticket = document.getElementById("ticket");
-const hint = document.getElementById("hint");
+const ring=document.getElementById("ring");
+const zodiacSel=document.getElementById("zodiac");
+const leverBtn=document.getElementById("lever");
+const resetBtn=document.getElementById("reset");
+const zicon=document.getElementById("zicon");
+const zname=document.getElementById("zname");
+const ticket=document.getElementById("ticket");
+const statusEl=document.getElementById("status");
 
-const zodiacs = ["牡羊座","牡牛座","双子座","蟹座","獅子座","乙女座","天秤座","蠍座","射手座","山羊座","水瓶座","魚座"];
-const icons = ["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"];
+const zodiacs=["牡羊座","牡牛座","双子座","蟹座","獅子座","乙女座","天秤座","蠍座","射手座","山羊座","水瓶座","魚座"];
+const icons=["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"];
 
-/* おみくじ文言を“部品化”して組み立てる */
-const lucks = [
-  {name:"大吉", weight:6},
-  {name:"中吉", weight:10},
-  {name:"小吉", weight:14},
-  {name:"吉", weight:18},
-  {name:"末吉", weight:16},
-  {name:"凶", weight:10},
-  {name:"大凶", weight:4}
-];
+const love=["今日は聞き役が吉。","返事は急がず温度を合わせよ。"];
+const work=["確認は一回多めに。","段取りが勝ち。"];
+const health=["湯船が正義。","水を一杯足せ。"];
+const money=["勢いで買わない。","財布の整理が吉。"];
+const people=["言い切らず余白を残せ。","褒め言葉は具体的に。"];
+const timeLuck=["午前","昼","夕方","夜"];
+const items=["紙ナプキン","メモ帳","万年筆"];
+const foods=["トースト","プリン","ブラックコーヒー"];
+const colors=["深緑","群青","生成り"];
 
-const love = ["言葉を短く、丁寧に。","返事は急がず、温度を合わせよ。","近道より正面突破。","今日は聞き役が吉。","偶然の再会に注意。"];
-const work = ["段取りが勝ち。","1つだけ片づけると流れが出る。","確認は一回多めに。","焦りは手順を溶かす。","メモがあなたを救う。"];
-const health = ["首と足首を温めよ。","水を一杯足せ。","眠気は味方、無理は敵。","画面から目を離せ。","湯船が正義。"];
-const money = ["小さな出費に注意。","財布の整理で運気が整う。","買う前に一晩寝かせる。","“必要”と“欲しい”を分ける。","今日は節約より整備。"];
-const people = ["褒め言葉は具体的に。","頼むより相談が吉。","距離感は少し広め。","相槌で場が回る。","言い切らず余白を残せ。"];
-const timeLuck = ["午前","昼","夕方","夜","深夜"];
-const items = ["紙ナプキン","古い鍵","メモ帳","角砂糖","マッチ箱","万年筆","小さなタオル","しおり"];
-const foods = ["プリン","ナポリタン","トースト","ミルクティー","クリームソーダ","カレー","ホットケーキ","ブラックコーヒー"];
-const colors = ["金","深緑","群青","えんじ","生成り","銀","茶","黒"];
+const oneLiners=["今日は守りが攻め。","小さく整えると大きく進む。"];
+const cautions=["予定を詰めすぎない。","口数が増えるほど失点。"];
 
-const oneLiners = [
-  "焦らない。雑にやらない。これだけで勝ち。","寄り道に福あり。","今日は守りが攻め。","決めない決断が正解の時もある。","小さく整えると大きく進む。"
-];
-const cautions = [
-  "口数が増えるほど失点しやすい。","予定を詰めすぎない。","甘いもので帳尻合わせしない。","結論を急いで雑にしない。","勢いで買わない。"
-];
-
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function nowStr(){
-  const d = new Date();
-  const pad = n => String(n).padStart(2,"0");
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-function weightedPick(list){
-  const total = list.reduce((s,x)=>s+x.weight,0);
-  let r = Math.random()*total;
-  for(const x of list){
-    r -= x.weight;
-    if(r <= 0) return x.name;
-  }
-  return list[list.length-1].name;
-}
-
-/* WebAudioで“カチカチ” */
-let audioCtx = null;
-function ensureAudio(){
-  if(!audioCtx){
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-}
-function clickTick(time, gainVal=0.04, freq=1400){
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  o.type = "square";
-  o.frequency.setValueAtTime(freq, time);
-  g.gain.setValueAtTime(0.0001, time);
-  g.gain.exponentialRampToValueAtTime(gainVal, time + 0.001);
-  g.gain.exponentialRampToValueAtTime(0.0001, time + 0.020);
-  o.connect(g); g.connect(audioCtx.destination);
-  o.start(time); o.stop(time + 0.03);
-}
-function playRatchet(durationMs=3000){
-  ensureAudio();
-  const start = audioCtx.currentTime + 0.02;
-  const dur = durationMs/1000;
-  // 最初は速く、終わりに遅くなる（止まる感じ）
-  const steps = 48; // だいたいそれっぽい回数
-  for(let i=0;i<steps;i++){
-    const t = i/(steps-1);
-    const interval = 0.018 + t*t*0.080; // 早→遅
-    const when = start + t*dur;
-    // when を interval で均等化したいが、簡易で十分「減速感」出る
-    clickTick(when, 0.035*(1-t)+0.02, 1300 + (1-t)*300);
-  }
-  // 止まる瞬間の「カチ」
-  clickTick(start + dur + 0.02, 0.06, 900);
-}
-
-let spinning=false;
-let ringAngle=0;
-
-function resetPaper(){
-  ticket.classList.remove("show");
-  // 連続でアニメが効くようにリフロー
-  void ticket.offsetWidth;
-}
-function showPaper(){
-  resetPaper();
-  ticket.classList.add("show");
+ const d=new Date();
+ const p=n=>String(n).padStart(2,"0");
+ return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
 zodiacSel.onchange=()=>{
-  if(zodiacSel.value===""){
-    leverBtn.disabled=true;
-    zicon.textContent="✦";
-    zname.textContent="星座を選んでください";
-  }else{
-    const i=Number(zodiacSel.value);
-    zicon.textContent=icons[i];
-    zname.textContent=zodiacs[i];
-    leverBtn.disabled=false;
-  }
+ if(zodiacSel.value===""){
+  leverBtn.disabled=true;
+  zicon.textContent="✦";
+  zname.textContent="星座を選んでください";
+ }else{
+  const i=Number(zodiacSel.value);
+  zicon.textContent=icons[i];
+  zname.textContent=zodiacs[i];
+  leverBtn.disabled=false;
+ }
 };
 
 leverBtn.onclick=()=>{
-  if(spinning || zodiacSel.value==="") return;
+ if(zodiacSel.value==="")return;
 
-  ensureAudio(); // ユーザー操作で音を許可させる
-  spinning=true;
-  leverBtn.disabled=true;
-  zodiacSel.disabled=true;
-  resetBtn.disabled=true;
+ ticket.classList.add("show");
+ document.getElementById("luck").textContent="吉";
+ document.getElementById("meta").textContent=`発行：喫茶テーブル神社 / ${nowStr()}`;
 
-  statusEl.textContent="ルーレット回転中…";
-  hint.textContent="カチカチ…止まるまで待ってね";
+ document.getElementById("today").textContent=`時刻：${pick(timeLuck)}が動く`;
+ document.getElementById("love").textContent=`恋愛：${pick(love)}`;
+ document.getElementById("work").textContent=`仕事：${pick(work)}`;
+ document.getElementById("health").textContent=`健康：${pick(health)}`;
+ document.getElementById("money").textContent=`金運：${pick(money)}`;
+ document.getElementById("people").textContent=`対人：${pick(people)}`;
+ document.getElementById("time").textContent=`勝負：${pick(timeLuck)}`;
 
-  resetPaper();
-  ticket.style.opacity = 0; // いったん隠す
+ document.getElementById("item").textContent=`持ち物：${pick(items)}`;
+ document.getElementById("food").textContent=`食：${pick(foods)}`;
+ document.getElementById("color").textContent=`色：${pick(colors)}`;
 
-  const chosenIdx=Number(zodiacSel.value);
+ document.getElementById("one").textContent=`一言：${pick(oneLiners)}`;
+ document.getElementById("caution").textContent=`注意：${pick(cautions)}`;
 
-  // 48ポケット（星座12×4）
-  const pocket=chosenIdx*4+Math.floor(Math.random()*4);
-  const pocketCenter=pocket*(360/48)+(360/96);
-
-  const turns=12+Math.floor(Math.random()*6);
-  ringAngle=ringAngle+turns*360-pocketCenter;
-  ring.style.transform=`rotate(${ringAngle}deg)`;
-
-  playRatchet(3000);
-
-  setTimeout(()=>{
-    // おみくじ生成
-    const luck = weightedPick(lucks);
-
-    document.getElementById("luck").textContent = luck;
-    document.getElementById("meta").textContent = `発行：喫茶テーブル神社 / ${nowStr()}`;
-    document.getElementById("zline").textContent = `星座：${zodiacs[chosenIdx]}`;
-    document.getElementById("today").textContent = `時刻：${pick(timeLuck)}が動く`;
-
-    document.getElementById("love").textContent = `恋愛：${pick(love)}`;
-    document.getElementById("work").textContent = `仕事：${pick(work)}`;
-    document.getElementById("health").textContent = `健康：${pick(health)}`;
-    document.getElementById("money").textContent = `金運：${pick(money)}`;
-    document.getElementById("people").textContent = `対人：${pick(people)}`;
-    document.getElementById("time").textContent = `勝負：${pick(timeLuck)}`;
-
-    document.getElementById("item").textContent = `ラッキーアイテム：${pick(items)}`;
-    document.getElementById("food").textContent = `ラッキーフード：${pick(foods)}`;
-    document.getElementById("color").textContent = `ラッキーカラー：${pick(colors)}`;
-
-    document.getElementById("one").textContent = `一言：${pick(oneLiners)}`;
-    document.getElementById("caution").textContent = `注意：${pick(cautions)}`;
-
-    ticket.style.opacity = 1;
-    showPaper();
-
-    resetBtn.disabled=false;
-    spinning=false;
-    statusEl.textContent="止まりました。";
-    hint.textContent="もう一回もできます";
-  },3000);
+ resetBtn.disabled=false;
 };
 
 resetBtn.onclick=()=>{
-  zodiacSel.disabled=false;
-  zodiacSel.value="";
-  leverBtn.disabled=true;
-  resetBtn.disabled=true;
-  zicon.textContent="✦";
-  zname.textContent="星座を選んでください";
-  statusEl.textContent="手順：星座 → レバー";
-  hint.textContent="回転が止まるまで待ってね";
-  resetPaper();
+ ticket.classList.remove("show");
+ resetBtn.disabled=true;
+ leverBtn.disabled=true;
+ zodiacSel.value="";
+ zicon.textContent="✦";
+ zname.textContent="星座を選んでください";
 };
 </script>
 </body>
